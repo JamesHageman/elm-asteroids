@@ -2,6 +2,8 @@ module Model exposing (..)
 
 import Time exposing (Time)
 import Keyboard exposing (KeyCode)
+import Window exposing (Size)
+import Task
 
 
 type Msg
@@ -9,6 +11,8 @@ type Msg
     | Keyup KeyCode
     | Keydown KeyCode
     | TogglePaused
+    | Resize Size
+    | Noop
 
 
 type alias Vector2 =
@@ -57,6 +61,7 @@ type alias Model =
     , rotation : Maybe RotateDirection
     , paused : Bool
     , aspectRatio : Float
+    , windowSize : Size
     }
 
 
@@ -69,8 +74,10 @@ init =
     , rotation = Nothing
     , paused = True
     , aspectRatio = 16.0 / 9.0
+    , windowSize = { width = 300, height = 300 }
     }
-        ! []
+        ! [ Task.perform (always Noop) Resize (Window.size)
+          ]
 
 
 initShip : Ship

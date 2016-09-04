@@ -5,6 +5,7 @@ import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 import Char exposing (fromCode)
 import Task
+import Window exposing (Size)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -34,29 +35,58 @@ fireEffects msg model =
 
 updateModel : Msg -> Model -> Model
 updateModel msg model =
-    if model.paused then
-        case msg of
-            TogglePaused ->
-                { model | paused = False }
-
-            _ ->
+    case msg of
+        Tick delta ->
+            if model.paused then
                 model
-    else
-        case msg of
-            Tick delta ->
+            else
                 model
                     |> rotateShip delta
                     |> accelerateShip delta
                     |> moveShip delta
 
-            Keyup code ->
-                trackKeyUp code model
+        Keyup code ->
+            trackKeyUp code model
 
-            Keydown code ->
-                trackKeyDown code model
+        Keydown code ->
+            trackKeyDown code model
 
-            TogglePaused ->
-                { model | paused = True }
+        TogglePaused ->
+            { model | paused = not model.paused }
+
+        Resize size ->
+            model
+                |> fitToWindow size
+
+        Noop ->
+            model
+
+
+fitToWindow : Size -> Model -> Model
+fitToWindow size model =
+    let
+        { dimensions, aspectRatio } =
+            model
+
+        width =
+            size.width |> toFloat
+
+        height =
+            size.height |> toFloat
+
+        windowRatio =
+            height / width
+
+        newDimensions =
+            if windowRatio < aspectRatio then
+                ( height / aspectRatio, height )
+            else
+                ( width, width * aspectRatio )
+    in
+        { model
+            | dimensions = newDimensions
+            , windowSize = size
+        }
 
 
 rotateShip : Time -> Model -> Model

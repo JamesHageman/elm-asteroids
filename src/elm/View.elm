@@ -6,14 +6,12 @@ import Html.Attributes exposing (style)
 import Collage exposing (collage, rect, filled, move, rotate, polygon, Form)
 import Element exposing (..)
 import Color
+import Text
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ game model
-        , hud model
-        ]
+    game model
 
 
 game : Model -> Html Msg
@@ -21,13 +19,18 @@ game model =
     let
         ( width, height ) =
             model.dimensions
+
+        window =
+            model.windowSize
     in
         collage
-            (floor width)
-            (floor height)
+            (round width)
+            (round height)
             [ background model
             , player model
+            , hud model
             ]
+            |> container window.width window.height middle
             |> toHtml
 
 
@@ -50,20 +53,11 @@ player { ship } =
         |> rotate (degrees ship.angle)
 
 
-hud : Model -> Html Msg
+hud : Model -> Form
 hud model =
-    let
-        children =
-            if model.paused then
-                [ text "Paused. Press p to resume" ]
-            else
-                []
-    in
-        div
-            [ style
-                [ ( "color", "white" )
-                , ( "position", "absolute" )
-                , ( "top", "0" )
-                ]
-            ]
-            children
+    if model.paused then
+        Text.fromString "Paused. Press p to resume"
+            |> Text.monospace
+            |> Collage.outlinedText (Collage.solid Color.white)
+    else
+        Collage.group []

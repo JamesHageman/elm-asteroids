@@ -3,6 +3,7 @@ module Subscriptions exposing (subscriptions)
 import Model exposing (Model, Msg(..))
 import Keyboard
 import AnimationFrame
+import Window
 
 
 fps : Float
@@ -16,4 +17,5 @@ subscriptions model =
         [ AnimationFrame.diffs Tick
         , Keyboard.downs Keydown
         , Keyboard.ups Keyup
+        , Window.resizes Resize
         ]
