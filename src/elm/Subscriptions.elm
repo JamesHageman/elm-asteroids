@@ -1,8 +1,8 @@
 module Subscriptions exposing (subscriptions)
 
 import Model exposing (Model, Msg(..))
-import Time
 import Keyboard
+import AnimationFrame
 
 
 fps : Float
@@ -13,7 +13,7 @@ fps =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Time.every (Time.millisecond * 1000 / fps) Tick
+        [ AnimationFrame.diffs Tick
         , Keyboard.downs Keydown
         , Keyboard.ups Keyup
         ]

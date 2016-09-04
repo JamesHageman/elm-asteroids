@@ -37,22 +37,17 @@ updateModel msg model =
     if model.paused then
         case msg of
             TogglePaused ->
-                { model | paused = False, lastTime = 0 }
+                { model | paused = False }
 
             _ ->
                 model
     else
         case msg of
-            Tick time ->
-                let
-                    delta =
-                        calculateDelta time model
-                in
-                    model
-                        |> rotateShip delta
-                        |> accelerateShip delta
-                        |> moveShip delta
-                        |> updateLastTime time
+            Tick delta ->
+                model
+                    |> rotateShip delta
+                    |> accelerateShip delta
+                    |> moveShip delta
 
             Keyup code ->
                 trackKeyUp code model
@@ -62,16 +57,6 @@ updateModel msg model =
 
             TogglePaused ->
                 { model | paused = True }
-
-
-calculateDelta : Time -> Model -> Time
-calculateDelta time { lastTime } =
-    case lastTime of
-        0 ->
-            0
-
-        lastTime ->
-            (Time.inMilliseconds time) - (Time.inMilliseconds lastTime)
 
 
 rotateShip : Time -> Model -> Model
@@ -178,11 +163,6 @@ wrap ( width, height ) ( x, y ) =
                 y
     in
         ( newX, newY )
-
-
-updateLastTime : Time -> Model -> Model
-updateLastTime time model =
-    { model | lastTime = time }
 
 
 keyMap =

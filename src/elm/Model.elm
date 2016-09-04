@@ -34,6 +34,7 @@ type alias Ship =
     , angle : Float
     , velocity : Vector2
     , bullets : List Bullet
+    , vertices : List Vector2
     }
 
 
@@ -52,10 +53,10 @@ type alias Model =
     { ship : Ship
     , asteroids : List Asteroid
     , dimensions : Dimensions
-    , lastTime : Float
     , thrusting : Bool
     , rotation : Maybe RotateDirection
     , paused : Bool
+    , aspectRatio : Float
     }
 
 
@@ -64,10 +65,10 @@ init =
     { ship = initShip
     , asteroids = []
     , dimensions = ( 640, 480 )
-    , lastTime = 0
     , thrusting = False
     , rotation = Nothing
     , paused = True
+    , aspectRatio = 16.0 / 9.0
     }
         ! []
 
@@ -78,4 +79,10 @@ initShip =
     , angle = 30
     , velocity = ( 50, 0 )
     , bullets = []
+    , vertices =
+        [ ( 20, 0 )
+        , ( -20, 15 )
+        , ( -10, 0 )
+        , ( -20, -15 )
+        ]
     }
