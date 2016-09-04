@@ -56,37 +56,37 @@ updateModel msg model =
 
         Resize size ->
             model
-                |> fitToWindow size
+                |> updateWindowSize size
+                |> updateScaleFactor size
 
         Noop ->
             model
 
 
-fitToWindow : Size -> Model -> Model
-fitToWindow size model =
+updateWindowSize : Size -> Model -> Model
+updateWindowSize size model =
+    { model | windowSize = size }
+
+
+updateScaleFactor : Size -> Model -> Model
+updateScaleFactor size model =
     let
-        { dimensions, aspectRatio } =
+        { worldDimensions, aspectRatio } =
             model
-
-        width =
-            size.width |> toFloat
-
-        height =
-            size.height |> toFloat
-
-        windowRatio =
-            height / width
-
-        newDimensions =
-            if windowRatio < aspectRatio then
-                ( height / aspectRatio, height )
-            else
-                ( width, width * aspectRatio )
     in
-        { model
-            | dimensions = newDimensions
-            , windowSize = size
-        }
+        { model | scaleFactor = getScaleFactor size worldDimensions aspectRatio }
+
+
+getScaleFactor : Window.Size -> Dimensions -> Float -> Float
+getScaleFactor windowSize ( worldWidth, worldHeight ) aspectRatio =
+    let
+        windowRatio =
+            (toFloat windowSize.height) / (toFloat windowSize.width)
+    in
+        if windowRatio > aspectRatio then
+            (toFloat windowSize.width) / worldWidth
+        else
+            (toFloat windowSize.height) / worldHeight
 
 
 rotateShip : Time -> Model -> Model
@@ -165,7 +165,7 @@ moveShip delta model =
 
         newPos =
             ( x + vx * deltaSeconds, y + vy * deltaSeconds )
-                |> wrap model.dimensions
+                |> wrap model.worldDimensions
 
         newShip =
             { ship | pos = newPos }

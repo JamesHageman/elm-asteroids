@@ -56,12 +56,13 @@ type RotateDirection
 type alias Model =
     { ship : Ship
     , asteroids : List Asteroid
-    , dimensions : Dimensions
+    , worldDimensions : Dimensions
     , thrusting : Bool
     , rotation : Maybe RotateDirection
     , paused : Bool
     , aspectRatio : Float
     , windowSize : Size
+    , scaleFactor : Float
     }
 
 
@@ -69,12 +70,13 @@ init : ( Model, Cmd Msg )
 init =
     { ship = initShip
     , asteroids = []
-    , dimensions = ( 640, 480 )
+    , worldDimensions = ( 450, 800 )
     , thrusting = False
     , rotation = Nothing
     , paused = True
     , aspectRatio = 16.0 / 9.0
     , windowSize = { width = 300, height = 300 }
+    , scaleFactor = 1
     }
         ! [ Task.perform (always Noop) Resize (Window.size)
           ]
