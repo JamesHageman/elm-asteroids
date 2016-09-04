@@ -43,9 +43,16 @@ type alias Ship =
 
 
 type alias Asteroid =
-    { pos : Pos
-    , points : List Pos
+    { pos : Vector2
+    , size : AsteroidSize
+    , direction : Float
     }
+
+
+type AsteroidSize
+    = Small
+    | Medium
+    | Large
 
 
 type RotateDirection
@@ -69,7 +76,9 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     { ship = initShip
-    , asteroids = []
+    , asteroids =
+        [ initAsteroid ( -100, 200 ) -10
+        ]
     , worldDimensions = ( 450, 800 )
     , thrusting = False
     , rotation = Nothing
@@ -82,11 +91,19 @@ init =
           ]
 
 
+initAsteroid : Vector2 -> Float -> Asteroid
+initAsteroid pos direction =
+    { pos = pos
+    , size = Large
+    , direction = direction
+    }
+
+
 initShip : Ship
 initShip =
-    { pos = ( 0, 0 )
-    , angle = 30
-    , velocity = ( 50, 0 )
+    { pos = ( 0, -50 )
+    , angle = 0
+    , velocity = ( 30, 0 )
     , bullets = []
     , vertices =
         [ ( 20, 0 )

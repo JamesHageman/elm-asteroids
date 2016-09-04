@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import Model exposing (Model, Pos, Dimensions, Msg(..), RotateDirection(..))
+import Model exposing (Model, Pos, Dimensions, Msg(..), RotateDirection(..), Asteroid)
 import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 import Char exposing (fromCode)
@@ -41,6 +41,7 @@ updateModel msg model =
                 model
             else
                 model
+                    |> moveAsteroids delta
                     |> rotateShip delta
                     |> accelerateShip delta
                     |> moveShip delta
@@ -75,6 +76,40 @@ updateScaleFactor size model =
             model
     in
         { model | scaleFactor = getScaleFactor size worldDimensions aspectRatio }
+
+
+moveAsteroids : Time -> Model -> Model
+moveAsteroids delta model =
+    let
+        newAsteroids =
+            model.asteroids
+                |> List.map (moveAsteroid delta model.worldDimensions)
+    in
+        { model | asteroids = newAsteroids }
+
+
+moveAsteroid : Time -> Dimensions -> Asteroid -> Asteroid
+moveAsteroid delta dimensions asteroid =
+    let
+        { direction } =
+            asteroid
+
+        theta =
+            degrees direction
+
+        ( x, y ) =
+            asteroid.pos
+
+        speed =
+            50 * (Time.inSeconds delta)
+
+        newPos =
+            ( x + speed * (cos theta)
+            , y + speed * (sin theta)
+            )
+                |> wrap dimensions
+    in
+        { asteroid | pos = newPos }
 
 
 getScaleFactor : Window.Size -> Dimensions -> Float -> Float

@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Model exposing (Model, Msg, Dimensions)
+import Model exposing (Model, Msg, Dimensions, Asteroid, AsteroidSize(..))
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
 import Collage exposing (collage, rect, filled, move, rotate, polygon, Form)
@@ -28,6 +28,7 @@ game model =
         gameForm =
             Collage.group
                 [ background model
+                , asteroids model
                 , player model
                 , hud model
                 ]
@@ -48,6 +49,33 @@ background model =
     in
         rect width height
             |> filled Color.black
+
+
+asteroids : Model -> Form
+asteroids model =
+    model.asteroids
+        |> List.map renderAsteroid
+        |> Collage.group
+
+
+renderAsteroid : Asteroid -> Form
+renderAsteroid asteroid =
+    Collage.ngon 12 (asteroidRadius asteroid.size)
+        |> Collage.outlined (Collage.solid Color.white)
+        |> move asteroid.pos
+
+
+asteroidRadius : AsteroidSize -> Float
+asteroidRadius size =
+    case size of
+        Small ->
+            10
+
+        Medium ->
+            25
+
+        Large ->
+            50
 
 
 player : Model -> Form
