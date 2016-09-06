@@ -78,6 +78,8 @@ init =
     { ship = initShip
     , asteroids =
         [ initAsteroid ( -100, 200 ) -10
+        , initAsteroid ( 50, -200 ) 30
+        , initAsteroid ( 20, -300 ) 100
         ]
     , worldDimensions = ( 450, 800 )
     , thrusting = False

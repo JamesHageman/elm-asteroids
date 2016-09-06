@@ -55,6 +55,7 @@ asteroids : Model -> Form
 asteroids model =
     model.asteroids
         |> List.map renderAsteroid
+        |> List.concatMap (replicateForWrapping model.worldDimensions)
         |> Collage.group
 
 
@@ -79,12 +80,38 @@ asteroidRadius size =
 
 
 player : Model -> Form
-player { ship } =
-    polygon
-        ship.vertices
-        |> filled Color.white
-        |> move ship.pos
-        |> rotate (degrees ship.angle)
+player { ship, worldDimensions } =
+    let
+        ( width, height ) =
+            worldDimensions
+
+        turn =
+            rotate (degrees ship.angle)
+
+        shape =
+            polygon
+                ship.vertices
+                |> filled Color.white
+                |> move ship.pos
+    in
+        shape
+            |> replicateForWrapping worldDimensions
+            |> List.map turn
+            |> Collage.group
+
+
+replicateForWrapping : Dimensions -> Form -> List Form
+replicateForWrapping worldDimensions form =
+    let
+        ( width, height ) =
+            worldDimensions
+    in
+        [ form
+        , form |> move ( width, 0 )
+        , form |> move ( -width, 0 )
+        , form |> move ( 0, height )
+        , form |> move ( 0, -height )
+        ]
 
 
 hud : Model -> Form

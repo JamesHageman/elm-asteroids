@@ -6,11 +6,6 @@ import AnimationFrame
 import Window
 
 
-fps : Float
-fps =
-    60
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
