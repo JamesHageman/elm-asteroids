@@ -6,6 +6,7 @@ import Keyboard exposing (KeyCode)
 import Char exposing (fromCode)
 import Task
 import Window exposing (Size)
+import PageVisibility exposing (Visibility(Visible, Hidden))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -59,6 +60,14 @@ updateModel msg model =
             model
                 |> updateWindowSize size
                 |> updateScaleFactor size
+
+        PageVisibilityChanged visibility ->
+            case visibility of
+                Hidden ->
+                    { model | paused = True }
+
+                Visible ->
+                    model
 
         Noop ->
             model

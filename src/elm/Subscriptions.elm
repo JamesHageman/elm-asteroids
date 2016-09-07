@@ -4,6 +4,7 @@ import Model exposing (Model, Msg(..))
 import Keyboard
 import AnimationFrame
 import Window
+import PageVisibility
 
 
 subscriptions : Model -> Sub Msg
@@ -13,4 +14,5 @@ subscriptions model =
         , Keyboard.downs Keydown
         , Keyboard.ups Keyup
         , Window.resizes Resize
+        , PageVisibility.visibilityChanges PageVisibilityChanged
         ]

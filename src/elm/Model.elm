@@ -4,6 +4,7 @@ import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 import Window exposing (Size)
 import Task
+import PageVisibility exposing (Visibility)
 
 
 type Msg
@@ -12,6 +13,7 @@ type Msg
     | Keydown KeyCode
     | TogglePaused
     | Resize Size
+    | PageVisibilityChanged Visibility
     | Noop
 
 
