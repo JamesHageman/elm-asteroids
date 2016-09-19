@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import Model exposing (Model, Pos, Dimensions, Msg(..), RotateDirection(..), Asteroid)
+import Model exposing (Model, Pos, Dimensions, Msg(..), RotateDirection(..), Asteroid, Ship, Bullet)
 import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 import Char exposing (fromCode)
@@ -21,12 +21,22 @@ update msg model =
         ( newModel, fx )
 
 
+fireAction : msg -> Cmd msg
+fireAction msg =
+    Task.perform identity identity (Task.succeed msg)
+
+
 fireEffects : Msg -> Model -> Cmd Msg
 fireEffects msg model =
     case msg of
         Keydown code ->
             if code == keyMap.pause then
-                Task.perform identity identity (Task.succeed TogglePaused)
+                fireAction TogglePaused
+            else if code == keyMap.shoot then
+                if not model.paused then
+                    fireAction Shoot
+                else
+                    Cmd.none
             else
                 Cmd.none
 
@@ -43,9 +53,14 @@ updateModel msg model =
             else
                 model
                     |> moveAsteroids delta
+                    |> moveBullets delta
                     |> rotateShip delta
                     |> accelerateShip delta
                     |> moveShip delta
+
+        Shoot ->
+            model
+                |> fireBullet
 
         Keyup code ->
             trackKeyUp code model
@@ -85,6 +100,81 @@ updateScaleFactor size model =
             model
     in
         { model | scaleFactor = getScaleFactor size worldDimensions aspectRatio }
+
+
+fireBullet : Model -> Model
+fireBullet model =
+    let
+        { ship } =
+            model
+
+        newShip =
+            { ship
+                | bullets =
+                    newBullet ship :: ship.bullets
+            }
+    in
+        { model | ship = newShip }
+
+
+newBullet : Ship -> Bullet
+newBullet ship =
+    let
+        speed =
+            200
+
+        ( shipVx, shipVy ) =
+            ship.velocity
+
+        vx =
+            speed * cos (degrees ship.angle)
+
+        vy =
+            speed * sin (degrees ship.angle)
+    in
+        { velocity = ( vx + shipVx, vy + shipVy )
+        , pos = ship.pos
+        }
+
+
+moveBullets : Time -> Model -> Model
+moveBullets delta model =
+    let
+        { ship } =
+            model
+
+        { bullets } =
+            ship
+
+        newBullets =
+            bullets
+                |> List.map (moveBullet delta model.worldDimensions)
+
+        newShip =
+            { ship
+                | bullets = newBullets
+            }
+    in
+        { model | ship = newShip }
+
+
+moveBullet : Time -> Dimensions -> Bullet -> Bullet
+moveBullet delta worldDimensions bullet =
+    let
+        ( vx, vy ) =
+            bullet.velocity
+
+        dt =
+            Time.inSeconds delta
+
+        ( x, y ) =
+            bullet.pos
+
+        newPos =
+            ( x + vx * dt, y + vy * dt )
+                |> wrap worldDimensions
+    in
+        { bullet | pos = newPos }
 
 
 moveAsteroids : Time -> Model -> Model
@@ -244,6 +334,7 @@ keyMap =
     , rotateLeft = 37
     , rotateRight = 39
     , pause = 80
+    , shoot = 32
     }
 
 

@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Model exposing (Model, Msg, Dimensions, Asteroid, AsteroidSize(..))
+import Model exposing (Model, Msg, Dimensions, Asteroid, AsteroidSize(..), Bullet)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
 import Collage exposing (collage, rect, filled, move, rotate, polygon, Form)
@@ -30,6 +30,7 @@ game model =
                 [ background model
                 , asteroids model
                 , player model
+                , bullets model
                 , hud model
                 ]
                 |> Collage.scale model.scaleFactor
@@ -49,6 +50,24 @@ background model =
     in
         rect width height
             |> filled Color.black
+
+
+bullets : Model -> Form
+bullets model =
+    let
+        { bullets } =
+            model.ship
+    in
+        bullets
+            |> List.map renderBullet
+            |> Collage.group
+
+
+renderBullet : Bullet -> Form
+renderBullet bullet =
+    Collage.circle 5
+        |> filled Color.white
+        |> move bullet.pos
 
 
 asteroids : Model -> Form

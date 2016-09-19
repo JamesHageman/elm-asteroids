@@ -14,6 +14,7 @@ type Msg
     | TogglePaused
     | Resize Size
     | PageVisibilityChanged Visibility
+    | Shoot
     | Noop
 
 
